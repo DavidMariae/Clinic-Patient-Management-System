@@ -1,31 +1,30 @@
 class Paciente:
-    def __init__(self, id_paciente, nome, data_nascimento, telefone, email, documento):
-        self.id = id_paciente
+    def __init__(self, id, nome, data_nasc, telefone, email, documento):
+        self.id = id  # Esta linha é a que está faltando!
         self.nome = nome
-        self.data_nascimento = data_nascimento
+        self.data_nasc = data_nasc
         self.telefone = telefone
         self.email = email
-        self.documento = documento  # CPF ou RG conforme o PDF
+        self.documento = documento
 
     def to_dict(self):
-        """Converte o objeto para dicionário (para salvar no JSON)."""
         return {
             "id": self.id,
             "nome": self.nome,
-            "data_nascimento": self.data_nascimento,
+            "data_nasc": self.data_nasc,
             "telefone": self.telefone,
             "email": self.email,
             "documento": self.documento,
         }
 
     @classmethod  # Chama o método da classe sem precisar instanciar, recebendo a classe como referência, diferente do staticmethod
-    def from_dict(cls, dados):
+    def from_dict(dados):
         """Cria um objeto Paciente a partir de um dicionário (vindo do JSON)."""
-        return cls(
-            id_paciente=dados["id"],
+        return Paciente(
+            id=dados["id"],
             nome=dados["nome"],
-            data_nascimento=dados["data_nascimento"],
+            data_nasc=dados["data_nasc"],
             telefone=dados["telefone"],
             email=dados["email"],
-            documento=dados["documento"],
+            documento=dados["doc"],
         )
