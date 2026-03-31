@@ -1,0 +1,18 @@
+[
+    {
+        "id": 1,
+        "nome": "David Andrew Marinho Apoliano",
+        "data_nasc": "19/02/2003",
+        "telefone": "(85) 99622-6021",
+        "email": "dandrew1902@gmail.com",
+        "documento": "044.816.103-60"
+    },
+    {
+        "id": 2,
+        "nome": "Andreia Aguiar Marinho",
+        "data_nasc": "10/04/1984",
+        "telefone": "(85) 98187-1984",
+        "email": "adm.andreia19@gmail.com",
+        "documento": "005.056.193-69"
+    }
+]
