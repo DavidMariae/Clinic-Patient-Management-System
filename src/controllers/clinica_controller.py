@@ -89,3 +89,25 @@ class ClinicaController:
             "total_atendimentos": len(atendimentos),
             "atendimentos_hoje": len(atendimentos_hoje),
         }
+
+    def obter_todos_pacientes(self):
+        """Retorna a lista completa de objetos Paciente vindos do JSON"""
+        dados = Database.ler_dados(PATH_PACIENTES)
+        if not dados:
+            return []
+        return [Paciente.from_dict(p) for p in dados]
+
+    def buscar_pacientes(self, termo):
+        """Filtra pacientes por nome ou telefone"""
+        termo = termo.lower()
+        todos = self.obter_todos_pacientes()
+        return [p for p in todos if termo in p.nome.lower() or termo in p.telefone]
+
+    def excluir_paciente(self, paciente_id):
+        """Remove um paciente pelo ID e salva o arquivo novamente"""
+        pacientes = Database.ler_dados(PATH_PACIENTES)
+        # Cria uma nova lista sem o paciente que queremos deletar
+        pacientes_atualizados = [p for p in pacientes if p["id"] != paciente_id]
+
+        Database.salvar_dados(PATH_PACIENTES, pacientes_atualizados)
+        return True

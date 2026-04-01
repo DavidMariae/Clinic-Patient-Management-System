@@ -18,13 +18,13 @@ class Paciente:
         }
 
     @classmethod  # Chama o método da classe sem precisar instanciar, recebendo a classe como referência, diferente do staticmethod
-    def from_dict(dados):
+    def from_dict(cls, dados):
         """Cria um objeto Paciente a partir de um dicionário (vindo do JSON)."""
-        return Paciente(
-            id=dados["id"],
-            nome=dados["nome"],
-            data_nasc=dados["data_nasc"],
-            telefone=dados["telefone"],
-            email=dados["email"],
-            documento=dados["doc"],
+        return cls(
+            id=dados.get("id"),
+            nome=dados.get("nome"),
+            data_nasc=dados.get("data_nasc"),
+            telefone=dados.get("telefone"),
+            email=dados.get("email"),
+            documento=dados.get("documento"),
         )
