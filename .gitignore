@@ -1,0 +1,10 @@
+# Arquivos compilados Python
+__pycache__/
+*.pyc
+
+# Ambiente virtual
+venv/
+
+# Arquivos temporários
+*.log
+*.tmp
