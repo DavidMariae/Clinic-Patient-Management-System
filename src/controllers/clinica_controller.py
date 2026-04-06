@@ -77,17 +77,21 @@ class ClinicaController:
 
     # --- LÓGICA DO DASHBOARD ---
     def buscar_estatisticas(self):
-        """Calcula os números para os cards do Dashboard em tempo real."""
-        pacientes = Database.ler_dados(PATH_PACIENTES)
-        atendimentos = Database.ler_dados(PATH_ATENDIMENTOS)
+        # 1. Carrega os dados brutos
+        pacientes = self.obter_todos_pacientes()
+        atendimentos = Database.ler_dados(
+            PATH_ATENDIMENTOS
+        )  # Use o caminho correto do seu JSON
 
+        # 2. Calcula atendimentos de hoje
         hoje = datetime.now().strftime("%d/%m/%Y")
-        atendimentos_hoje = [a for a in atendimentos if a["data"] == hoje]
+        atendimentos_hoje = [a for a in atendimentos if a.get("data") == hoje]
 
         return {
             "total_pacientes": len(pacientes),
             "total_atendimentos": len(atendimentos),
             "atendimentos_hoje": len(atendimentos_hoje),
+            "lista_recente": atendimentos[-5:],  # Pega os últimos 5 para a tabela
         }
 
     def obter_todos_pacientes(self):
@@ -96,6 +100,11 @@ class ClinicaController:
         if not dados:
             return []
         return [Paciente.from_dict(p) for p in dados]
+
+    def obter_todos_atendimentos(self):
+        # Retorna a lista completa do JSON ou uma lista vazia se não existir
+        atendimentos = Database.ler_dados(PATH_ATENDIMENTOS)
+        return atendimentos[::-1]  # Retorna do mais recente para o mais antigo
 
     def buscar_pacientes(self, termo):
         """Filtra pacientes por nome ou telefone"""
@@ -111,3 +120,30 @@ class ClinicaController:
 
         Database.salvar_dados(PATH_PACIENTES, pacientes_atualizados)
         return True
+
+    def obter_nomes_pacientes(self):
+        # Retorna uma lista de strings formatadas: 'Nome (ID)'
+        pacientes = self.obter_todos_pacientes()
+        return [f"{p.nome} (ID: {p.id})" for p in pacientes]
+
+    def salvar_atendimento(self, dados_atendimento):
+        # Carrega a lista atual, adiciona o novo e salva no atendimentos.json
+        atendimentos = Database.ler_dados(PATH_ATENDIMENTOS)
+        atendimentos.append(dados_atendimento)
+        Database.salvar_dados(PATH_ATENDIMENTOS, atendimentos)
+        return True
+
+    def filtrar_atendimentos_por_paciente(self, paciente_id):
+        # Carrega todos os atendimentos do JSON
+        todos_atendimentos = Database.ler_dados(PATH_ATENDIMENTOS)
+
+        # Filtra mantendo apenas os que batem com o ID do paciente
+        # Convertemos para string para garantir a comparação correta
+        historico = [
+            a
+            for a in todos_atendimentos
+            if str(a.get("paciente_id")) == str(paciente_id)
+        ]
+
+        # Retorna do mais recente para o mais antigo
+        return historico[::-1]
