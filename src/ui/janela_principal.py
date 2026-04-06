@@ -2,6 +2,9 @@ import customtkinter as ctk
 import config
 from src.ui.novo_paciente_view import NovoPacienteView
 from src.ui.pacientes_view import PacientesView
+from src.ui.novo_atendimento_view import NovoAtendimentoView
+from src.ui.detalhes_paciente_view import DetalhesPacienteView
+from src.ui.atendimentos_view import AtendimentosView
 
 
 class JanelaPrincipal(ctk.CTk):
@@ -54,6 +57,21 @@ class JanelaPrincipal(ctk.CTk):
         # Força a atualização da lista ao abrir
         self.tela_listagem.atualizar_lista()
 
+    def mostrar_tela_novo_atendimento(self):
+        self._limpar_conteudo_principal()
+        self.tela_atendimento = NovoAtendimentoView(self.main_frame, self.controller)
+        self.tela_atendimento.pack(fill="both", expand=True)
+
+    def mostrar_tela_atendimentos(self):
+        """Troca o conteúdo principal para a listagem de todos os atendimentos"""
+        self._limpar_conteudo_principal()
+
+        # Cria a view passando o frame principal e o controller
+        self.tela_listagem_atendimentos = AtendimentosView(
+            self.main_frame, self.controller
+        )
+        self.tela_listagem_atendimentos.pack(fill="both", expand=True)
+
     # --- MENU LATERAL (SIDEBAR) ---
     def _criar_sidebar(self):
         self.sidebar_frame = ctk.CTkFrame(
@@ -92,8 +110,10 @@ class JanelaPrincipal(ctk.CTk):
         self.btn_novo_atendimento = self._gerar_botao_menu(
             "Novo Atendimento", icone="plus-circle"
         )
+        self.btn_novo_atendimento.configure(command=self.mostrar_tela_novo_atendimento)
 
         self.btn_agenda = self._gerar_botao_menu("Atendimentos", icone="calendar")
+        self.btn_agenda.configure(command=self.mostrar_tela_atendimentos)
 
         # Rodapé
         self.lbl_versao = ctk.CTkLabel(
@@ -162,7 +182,7 @@ class JanelaPrincipal(ctk.CTk):
         )
 
         # Tabela
-        self._criar_tabela_atendimentos(stats["total_atendimentos"])
+        self._criar_tabela_atendimentos(stats["lista_recente"])
 
     def _cria_card(self, titulo, valor, cor_destaque):
         card = ctk.CTkFrame(
@@ -191,7 +211,7 @@ class JanelaPrincipal(ctk.CTk):
             text_color=config.COR_TEXTO_DARK,
         ).pack(pady=(5, 0), padx=20, anchor="w")
 
-    def _criar_tabela_atendimentos(self, total_atendimentos):
+    def _criar_tabela_atendimentos(self, lista_recente):  # Agora recebe a lista real
         self.tabela_frame = ctk.CTkFrame(
             self.main_frame, fg_color=config.COR_CARD, corner_radius=15
         )
@@ -208,24 +228,16 @@ class JanelaPrincipal(ctk.CTk):
         self.grid_frame.pack(fill="x", padx=20, pady=(0, 20))
         self.grid_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
-        headers = ["Paciente", "Data", "Tipo", "Status"]
-        for i, header in enumerate(headers):
-            ctk.CTkLabel(
-                self.grid_frame,
-                text=header,
-                font=(config.FONTE_FAMILIA, 13, "bold"),
-                text_color="gray",
-                anchor="w",
-            ).grid(row=0, column=i, sticky="ew", padx=10, pady=10)
-
-        # Dados de Teste
-        test_data = [
-            ["João Silva", "23/04/2024", "Consulta", "Realizado"],
-            ["Ana Costa", "23/04/2024", "Exame", "Realizado"],
-            ["Carlos Lima", "22/04/2024", "Retorno", "Em Acompanhamento"],
-        ]
-        for row_idx, data in enumerate(test_data):
-            self._criar_atendimento_row(data, row_idx + 1)
+        # Renderiza os dados reais vindos do JSON
+        for row_idx, atendimento in enumerate(lista_recente):
+            # Formatando os dados para a linha: [Nome, Data, Tipo, Status]
+            dados_linha = [
+                atendimento.get("paciente_nome", "N/A"),
+                atendimento.get("data", "--/--/----"),
+                atendimento.get("tipo", "Geral"),
+                atendimento.get("status", "Pendente"),
+            ]
+            self._criar_atendimento_row(dados_linha, row_idx + 1)
 
     def _criar_atendimento_row(self, data, row_idx):
         for col_idx, value in enumerate(data):
@@ -265,30 +277,7 @@ class JanelaPrincipal(ctk.CTk):
 
     def mostrar_detalhes_paciente(self, paciente):
         self._limpar_conteudo_principal()
-
-        # Criaremos uma view simples de detalhes
-        container = ctk.CTkFrame(self.main_frame)
-        container.pack(fill="both", expand=True, padx=20, pady=20)
-
-        ctk.CTkLabel(
-            container,
-            text=f"Ficha do Paciente: {paciente.nome}",
-            font=("Segoe UI", 20, "bold"),
-        ).pack(pady=10)
-
-        # Grid de informações
-        info_text = (
-            f"ID: {paciente.id}\n"
-            f"Data de Nascimento: {paciente.data_nasc}\n"
-            f"Documento: {paciente.documento}\n"
-            f"Telefone: {paciente.telefone}\n"
-            f"E-mail: {paciente.email}"
+        self.tela_detalhes = DetalhesPacienteView(
+            self.main_frame, self.controller, paciente
         )
-
-        ctk.CTkLabel(
-            container, text=info_text, justify="left", font=("Segoe UI", 14)
-        ).pack(pady=20)
-
-        ctk.CTkButton(
-            container, text="Voltar para Lista", command=self.mostrar_tela_pacientes
-        ).pack(pady=10)
+        self.tela_detalhes.pack(fill="both", expand=True)
