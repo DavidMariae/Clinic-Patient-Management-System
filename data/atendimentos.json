@@ -1,18 +1,218 @@
 [
-    {
-        "paciente_id": "2",
-        "paciente_nome": "Andreia Aguiar Marinho",
-        "data": "16/04/2026",
-        "tipo": "1a consulta",
-        "status": "Em acompanhamento",
-        "observacoes": "nda"
-    },
-    {
-        "paciente_id": "2",
-        "paciente_nome": "Andreia Aguiar Marinho",
-        "data": "06/04/2026",
-        "tipo": "Retorno",
-        "status": "Realizado",
-        "observacoes": "nda"
-    }
+  {
+    "id": 1,
+    "paciente_id": 1,
+    "data": "2026-04-01",
+    "tipo": "Consulta",
+    "observacoes": "Avaliação inicial",
+    "status": "Realizado"
+  },
+  {
+    "id": 2,
+    "paciente_id": 1,
+    "data": "2026-04-08",
+    "tipo": "Exame",
+    "observacoes": "Exames laboratoriais de rotina",
+    "status": "Realizado"
+  },
+  {
+    "id": 3,
+    "paciente_id": 1,
+    "data": "2026-04-14",
+    "tipo": "Retorno",
+    "observacoes": "Análise de resultados",
+    "status": "Em acompanhamento"
+  },
+  {
+    "id": 4,
+    "paciente_id": 2,
+    "data": "2026-04-02",
+    "tipo": "Consulta",
+    "observacoes": "Queixa de dor abdominal",
+    "status": "Realizado"
+  },
+  {
+    "id": 5,
+    "paciente_id": 2,
+    "data": "2026-04-09",
+    "tipo": "Exame",
+    "observacoes": "Ultrassonografia abdominal",
+    "status": "Realizado"
+  },
+  {
+    "id": 6,
+    "paciente_id": 2,
+    "data": "2026-04-16",
+    "tipo": "Retorno",
+    "observacoes": "Discussão do diagnóstico",
+    "status": "Em acompanhamento"
+  },
+  {
+    "id": 7,
+    "paciente_id": 3,
+    "data": "2026-04-03",
+    "tipo": "Urgência",
+    "observacoes": "Atendimento por queda",
+    "status": "Realizado"
+  },
+  {
+    "id": 8,
+    "paciente_id": 3,
+    "data": "2026-04-05",
+    "tipo": "Exame",
+    "observacoes": "Raio-X do braço",
+    "status": "Realizado"
+  },
+  {
+    "id": 9,
+    "paciente_id": 3,
+    "data": "2026-04-12",
+    "tipo": "Retorno",
+    "observacoes": "Avaliação da recuperação",
+    "status": "Em acompanhamento"
+  },
+  {
+    "id": 10,
+    "paciente_id": 4,
+    "data": "2026-04-01",
+    "tipo": "Consulta",
+    "observacoes": "Check-up anual",
+    "status": "Realizado"
+  },
+  {
+    "id": 11,
+    "paciente_id": 4,
+    "data": "2026-04-07",
+    "tipo": "Exame",
+    "observacoes": "Exame de sangue completo",
+    "status": "Realizado"
+  },
+  {
+    "id": 12,
+    "paciente_id": 4,
+    "data": "2026-04-15",
+    "tipo": "Retorno",
+    "observacoes": "Resultados dentro da normalidade",
+    "status": "Em acompanhamento"
+  },
+  {
+    "id": 13,
+    "paciente_id": 5,
+    "data": "2026-04-04",
+    "tipo": "Consulta",
+    "observacoes": "Dor no joelho",
+    "status": "Realizado"
+  },
+  {
+    "id": 14,
+    "paciente_id": 5,
+    "data": "2026-04-10",
+    "tipo": "Exame",
+    "observacoes": "Ressonância do joelho",
+    "status": "Realizado"
+  },
+  {
+    "id": 15,
+    "paciente_id": 5,
+    "data": "2026-04-18",
+    "tipo": "Procedimento",
+    "observacoes": "Infiltração articular",
+    "status": "Em acompanhamento"
+  },
+  {
+    "id": 16,
+    "paciente_id": 6,
+    "data": "2026-04-02",
+    "tipo": "Consulta",
+    "observacoes": "Sintomas gripais",
+    "status": "Realizado"
+  },
+  {
+    "id": 17,
+    "paciente_id": 6,
+    "data": "2026-04-03",
+    "tipo": "Exame",
+    "observacoes": "Teste de COVID e Influenza",
+    "status": "Realizado"
+  },
+  {
+    "id": 18,
+    "paciente_id": 6,
+    "data": "2026-04-09",
+    "tipo": "Retorno",
+    "observacoes": "Melhora clínica",
+    "status": "Em acompanhamento"
+  },
+  {
+    "id": 19,
+    "paciente_id": 7,
+    "data": "2026-04-05",
+    "tipo": "Consulta",
+    "observacoes": "Alergia cutânea",
+    "status": "Realizado"
+  },
+  {
+    "id": 20,
+    "paciente_id": 7,
+    "data": "2026-04-11",
+    "tipo": "Procedimento",
+    "observacoes": "Aplicação de medicação",
+    "status": "Realizado"
+  },
+  {
+    "id": 21,
+    "paciente_id": 7,
+    "data": "2026-04-17",
+    "tipo": "Retorno",
+    "observacoes": "Reavaliação da pele",
+    "status": "Em acompanhamento"
+  },
+  {
+    "id": 25,
+    "paciente_id": 9,
+    "data": "2026-04-03",
+    "tipo": "Urgência",
+    "observacoes": "Crise hipertensiva",
+    "status": "Realizado"
+  },
+  {
+    "id": 26,
+    "paciente_id": 9,
+    "data": "2026-04-04",
+    "tipo": "Procedimento",
+    "observacoes": "Administração de medicação",
+    "status": "Realizado"
+  },
+  {
+    "id": 27,
+    "paciente_id": 9,
+    "data": "2026-04-13",
+    "tipo": "Retorno",
+    "observacoes": "Controle da pressão",
+    "status": "Em acompanhamento"
+  },
+  {
+    "id": 28,
+    "paciente_id": 10,
+    "data": "2026-04-07",
+    "tipo": "Consulta",
+    "observacoes": "Avaliação de rotina",
+    "status": "Realizado"
+  },
+  {
+    "id": 29,
+    "paciente_id": 10,
+    "data": "2026-04-14",
+    "tipo": "Exame",
+    "observacoes": "Exames gerais",
+    "status": "Realizado"
+  },
+  {
+    "id": 30,
+    "paciente_id": 10,
+    "data": "2026-04-21",
+    "tipo": "Retorno",
+    "observacoes": "Acompanhamento geral",
+    "status": "Em acompanhamento"
+  }
 ]

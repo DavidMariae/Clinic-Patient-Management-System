@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "nome": "Administrador",
+    "usuario": "admin",
+    "senha": "admin123",
+    "nivel": "Administrador"
+  },
+  {
+    "id": 2,
+    "nome": "David Andrew Marinho Apoliano",
+    "usuario": "david mariae",
+    "senha": "SMMDDC",
+    "nivel": "Administrador"
+  }
+]

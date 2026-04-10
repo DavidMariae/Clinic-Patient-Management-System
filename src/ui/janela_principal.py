@@ -1,283 +1,237 @@
 import customtkinter as ctk
-import config
-from src.ui.novo_paciente_view import NovoPacienteView
-from src.ui.pacientes_view import PacientesView
-from src.ui.novo_atendimento_view import NovoAtendimentoView
-from src.ui.detalhes_paciente_view import DetalhesPacienteView
-from src.ui.atendimentos_view import AtendimentosView
+from config import *
+import src.ui.fonts as F
+
+ctk.set_appearance_mode(APPEARANCE_MODE)
+ctk.set_default_color_theme(COLOR_THEME)
 
 
 class JanelaPrincipal(ctk.CTk):
-    def __init__(self, controller):
+    def __init__(self, usuario=None):
         super().__init__()
+        self._usuario = usuario or {"nome": "Usuário", "nivel": ""}
+        self.title(APP_TITLE)
+        self.geometry(APP_GEOMETRY)
+        self.minsize(APP_MIN_WIDTH, APP_MIN_HEIGHT) # Largura e altura mínima
+        self.configure(fg_color=FUNDO_APP)
+        self._frame_atual = None
+        self._botoes_nav  = {}
+        self._build_layout()
+        self.mostrar_frame("dashboard")
 
-        self.controller = controller  # Recebe o cérebro do sistema
-
-        # Configurações da Janela vindas do config.py
-        self.title("Clínica Pantocrator - Cuidando de você por inteiro")
-        self.geometry(f"{config.LARGURA_JANELA}x{config.ALTURA_JANELA}")
-        ctk.set_appearance_mode(config.TEMA_APARENCIA)
-        ctk.set_default_color_theme(config.TEMA_COR)
-        self.configure(fg_color=config.COR_FUNDO)
-
-        # Layout de Grid (Coluna 0: Menu, Coluna 1: Conteúdo)
+    # ── Layout geral ────────────────────────────────────────
+    def _build_layout(self):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
+        self._build_sidebar()
+        self.area_conteudo = ctk.CTkFrame(
+            self, fg_color=FUNDO_APP, corner_radius=0)
+        self.area_conteudo.grid(row=0, column=1, sticky="nsew")
+        self.area_conteudo.grid_columnconfigure(0, weight=1)
+        self.area_conteudo.grid_rowconfigure(0, weight=1)
 
-        # - Cria a Sidebar (Menu)
-        self._criar_sidebar()
+    # ── Sidebar ─────────────────────────────────────────────
+    def _build_sidebar(self):
+        sidebar = ctk.CTkFrame(
+            self, fg_color=AZUL_ESCURO,
+            corner_radius=0, width=SIDEBAR_WIDTH)
+        sidebar.grid(row=0, column=0, sticky="nsew")
+        sidebar.grid_propagate(False)
+        sidebar.grid_columnconfigure(0, weight=1)
+        sidebar.grid_rowconfigure(2, weight=1)
 
-        # - Cria o Frame de Conteúdo (O 'ambiente' que nunca muda)
-        self.main_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
-        self.main_frame.grid(row=0, column=1, sticky="nsew", padx=30, pady=30)
+        # Linha dourada no topo
+        ctk.CTkFrame(
+            sidebar, fg_color=DOURADO_FORTE, height=3, corner_radius=0
+        ).grid(row=0, column=0, sticky="ew")
 
-        # - Inicia na tela de Dashboard
-        self.mostrar_dashboard()
+        # Header / Logo
+        self._build_header(sidebar)
 
-    # --- NAVEGAÇÃO ---
-    def _limpar_conteudo_principal(self):
-        """Limpa o ambiente para a próxima tela"""
-        for widget in self.main_frame.winfo_children():
-            widget.destroy()
+        # Separador
+        ctk.CTkFrame(
+            sidebar, fg_color="#1E4275", height=1, corner_radius=0
+        ).grid(row=2, column=0, sticky="ew")
 
-    def mostrar_dashboard(self):
-        self._limpar_conteudo_principal()
-        self._desenhar_dashboard()
+        # Navegação
+        self._build_nav(sidebar)
 
-    def mostrar_tela_novo_paciente(self):
-        self._limpar_conteudo_principal()
-        # Criando a tela dentro do main_frame
-        self.tela_cadastro = NovoPacienteView(self.main_frame, self.controller)
-        self.tela_cadastro.pack(fill="both", expand=True)
+        # Separador
+        ctk.CTkFrame(
+            sidebar, fg_color="#1E4275", height=1, corner_radius=0
+        ).grid(row=4, column=0, sticky="ew")
 
-    def mostrar_tela_pacientes(self):
-        self._limpar_conteudo_principal()
-        self.tela_listagem = PacientesView(self.main_frame, self.controller)
-        self.tela_listagem.pack(fill="both", expand=True)
-        # Força a atualização da lista ao abrir
-        self.tela_listagem.atualizar_lista()
+        # Footer
+        self._build_footer(sidebar)
 
-    def mostrar_tela_novo_atendimento(self):
-        self._limpar_conteudo_principal()
-        self.tela_atendimento = NovoAtendimentoView(self.main_frame, self.controller)
-        self.tela_atendimento.pack(fill="both", expand=True)
+    def _build_header(self, sidebar):
+        header = ctk.CTkFrame(sidebar, fg_color="transparent")
+        header.grid(row=1, column=0, sticky="ew", padx=16, pady=(18, 16))
+        header.grid_columnconfigure(1, weight=1)
 
-    def mostrar_tela_atendimentos(self):
-        """Troca o conteúdo principal para a listagem de todos os atendimentos"""
-        self._limpar_conteudo_principal()
+        # Ícone da cruz
+        logo_bg = ctk.CTkFrame(
+            header, fg_color=AZUL_PROFUNDO,
+            corner_radius=RAIO_ICONE, width=40, height=40,
+            border_width=1, border_color=DOURADO_BORDA)
+        logo_bg.grid(row=0, column=0, rowspan=2)
+        logo_bg.grid_propagate(False)
+        ctk.CTkLabel(
+            logo_bg, text=LOGO,
+            font=F.font(18, "bold"),
+            text_color=DOURADO_FORTE
+        ).place(relx=0.5, rely=0.5, anchor="center")
 
-        # Cria a view passando o frame principal e o controller
-        self.tela_listagem_atendimentos = AtendimentosView(
-            self.main_frame, self.controller
-        )
-        self.tela_listagem_atendimentos.pack(fill="both", expand=True)
+        ctk.CTkLabel(
+            header, text="Pantokrátor",
+            font=F.logo(),
+            text_color=DOURADO_CLARO
+        ).grid(row=0, column=1, sticky="w", padx=(12, 0))
 
-    # --- MENU LATERAL (SIDEBAR) ---
-    def _criar_sidebar(self):
-        self.sidebar_frame = ctk.CTkFrame(
-            self,
-            width=config.LARGURA_MENU,
-            corner_radius=0,
-            fg_color=config.COR_SIDEBAR,
-        )
-        self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
+        ctk.CTkLabel(
+            header, text="GESTÃO CLÍNICA",
+            font=F.logo_sub(),
+            text_color=AZUL_CLARO
+        ).grid(row=1, column=1, sticky="w", padx=(12, 0))
 
-        # Logo/Nome
-        self.logo_label = ctk.CTkLabel(
-            self.sidebar_frame,
-            text="Clínica Pantocrator",
-            font=config.FONTE_H2,
-            text_color=config.COR_TEXTO_LIGHT,
-        )
-        self.logo_label.pack(pady=(30, 40), padx=20)
+    def _build_nav(self, sidebar):
+        nav = ctk.CTkFrame(sidebar, fg_color="transparent")
+        nav.grid(row=3, column=0, sticky="nsew", padx=12, pady=12)
+        nav.grid_columnconfigure(0, weight=1)
 
-        # Botões do Menu
-        self.btn_dash = self._gerar_botao_menu("Dashboard", icone="home")
-        self.btn_dash.configure(command=self.mostrar_dashboard)
+        # ── Seção Menu ──
+        ctk.CTkLabel(
+            nav, text="MENU",
+            font=F.micro_bold(),
+            text_color=DOURADO_FORTE
+        ).grid(row=0, column=0, sticky="w", padx=8, pady=(4, 2))
 
-        # Grupo de Pacientes
-        self._criar_separador("PACIENTES")
+        itens_menu = [
+            ("dashboard",    "⊞", "Dashboard"),
+            ("pacientes",    "👥", "Pacientes"),
+            ("atendimentos", "📄", "Atendimentos"),
+        ]
+        for i, (chave, icone, label) in enumerate(itens_menu):
+            self._nav_btn(nav, chave, icone, label, row=i + 1)
 
-        self.btn_novo_paciente = self._gerar_botao_menu("Novo Paciente", icone="plus")
-        self.btn_novo_paciente.configure(command=self.mostrar_tela_novo_paciente)
+        # ── Seção Ações ──
+        ctk.CTkLabel(
+            nav, text="AÇÕES",
+            font=F.micro_bold(),
+            text_color=DOURADO_FORTE
+        ).grid(row=5, column=0, sticky="w", padx=8, pady=(16, 2))
 
-        self.btn_pacientes = self._gerar_botao_menu("Pacientes", icone="users")
-        self.btn_pacientes.configure(command=self.mostrar_tela_pacientes)
+        itens_acao = [
+            ("novo_paciente",    "＋", "Novo Paciente"),
+            ("novo_atendimento", "＋", "Novo Atendimento"),
+        ]
+        for i, (chave, icone, label) in enumerate(itens_acao):
+            self._nav_btn(nav, chave, icone, label, row=i + 6)
 
-        # Grupo de Atendimentos
-        self._criar_separador("ATENDIMENTOS")
-
-        self.btn_novo_atendimento = self._gerar_botao_menu(
-            "Novo Atendimento", icone="plus-circle"
-        )
-        self.btn_novo_atendimento.configure(command=self.mostrar_tela_novo_atendimento)
-
-        self.btn_agenda = self._gerar_botao_menu("Atendimentos", icone="calendar")
-        self.btn_agenda.configure(command=self.mostrar_tela_atendimentos)
-
-        # Rodapé
-        self.lbl_versao = ctk.CTkLabel(
-            self.sidebar_frame,
-            text="v 1.1.5",
-            font=(config.FONTE_FAMILIA, 10),
-            text_color="gray",
-        )
-        self.lbl_versao.pack(side="bottom", pady=20)
-
-    def _gerar_botao_menu(self, texto, icone=None):
-        """para criar botões do menu padronizados e modularizados"""
+    def _nav_btn(self, parent, chave, icone, label, row):
         btn = ctk.CTkButton(
-            self.sidebar_frame,
-            text=texto,
-            height=45,
-            corner_radius=8,
-            fg_color="transparent",
-            text_color=config.COR_TEXTO_LIGHT,
-            hover_color=config.COR_BOTAO_HOVER_SIDEBAR,
+            parent,
+            text=f"  {icone}   {label}",
             anchor="w",
-            font=config.FONTE_CORPO,
+            font=F.nav(),
+            fg_color="transparent",
+            text_color="#A8C0DC",
+            hover_color=AZUL_MEDIO,
+            corner_radius=RAIO_BTN,
+            height=ALTURA_BTN_NAV,
+            border_width=0,
+            command=lambda c=chave: self.mostrar_frame(c)
         )
-        btn.pack(fill="x", padx=20, pady=5)
+        btn.grid(row=row, column=0, sticky="ew", pady=1)
+        self._botoes_nav[chave] = btn
 
-        # O placeholder do ícone (será adicionado posteriormetne)
-        if icone:
-            pass  # Lógica de ícone ficará em src/utils/ui_utils.py talvez
+    def _build_footer(self, sidebar):
+        footer = ctk.CTkFrame(sidebar, fg_color="transparent")
+        footer.grid(row=5, column=0, sticky="ew", padx=12, pady=14)
+        footer.grid_columnconfigure(1, weight=1)
 
-        return btn
-
-    def _criar_separador(self, texto):
-        lbl = ctk.CTkLabel(
-            self.sidebar_frame,
-            text=texto,
-            font=(config.FONTE_FAMILIA, 11, "bold"),
-            text_color="gray",
-        )
-        lbl.pack(fill="x", padx=20, pady=(15, 0), anchor="w")
-
-    # --- ÁREA DE CONTEÚDO (DASHBOARD) ---
-    def _desenhar_dashboard(self):
-        # Título
-        self.lbl_titulo = ctk.CTkLabel(
-            self.main_frame,
-            text="Resumo Geral",
-            font=config.FONTE_H1,
-            text_color=config.COR_TEXTO_DARK,
-        )
-        self.lbl_titulo.pack(pady=(0, 30), anchor="w")
-
-        # Container dos Cards
-        self.cards_container = ctk.CTkFrame(self.main_frame, fg_color="transparent")
-        self.cards_container.pack(fill="x")
-
-        stats = self.controller.buscar_estatisticas()
-
-        self._cria_card(
-            "Total de Pacientes", str(stats["total_pacientes"]), config.COR_PRINCIPAL
-        )
-        self._cria_card(
-            "Atendimentos Hoje", str(stats["atendimentos_hoje"]), config.COR_SUCESSO
-        )
-        self._cria_card(
-            "Total Atendimentos", str(stats["total_atendimentos"]), config.COR_AVISO
-        )
-
-        # Tabela
-        self._criar_tabela_atendimentos(stats["lista_recente"])
-
-    def _cria_card(self, titulo, valor, cor_destaque):
-        card = ctk.CTkFrame(
-            self.cards_container,
-            fg_color=config.COR_CARD,
-            width=250,
-            height=150,
-            corner_radius=15,
-        )
-        card.pack(side="left", padx=(0, 20))
-        card.pack_propagate(False)  # Impede ajuste automaticamente o tamanho
-
-        borda = ctk.CTkFrame(card, width=5, fg_color=cor_destaque, corner_radius=0)
-        borda.pack(side="left", fill="y")
+        avatar = ctk.CTkFrame(
+            footer, fg_color=AZUL_PROFUNDO,
+            corner_radius=20, width=34, height=34,
+            border_width=1, border_color=DOURADO_BORDA)
+        avatar.grid(row=0, column=0, rowspan=2)
+        avatar.grid_propagate(False)
+        
+        nome     = self._usuario.get("nome", "U")
+        iniciais = "".join([p[0].upper() for p in nome.split()[:2]])
 
         ctk.CTkLabel(
-            card,
-            text=titulo.upper(),
-            font=(config.FONTE_FAMILIA, 12, "bold"),
-            text_color="gray",
-        ).pack(pady=(20, 0), padx=20, anchor="w")
-        ctk.CTkLabel(
-            card,
-            text=valor,
-            font=config.FONTE_CARD_VALOR,
-            text_color=config.COR_TEXTO_DARK,
-        ).pack(pady=(5, 0), padx=20, anchor="w")
-
-    def _criar_tabela_atendimentos(self, lista_recente):  # Agora recebe a lista real
-        self.tabela_frame = ctk.CTkFrame(
-            self.main_frame, fg_color=config.COR_CARD, corner_radius=15
-        )
-        self.tabela_frame.pack(fill="x", pady=(40, 0))
+            avatar, text=iniciais,
+            font=F.avatar(),
+            text_color=DOURADO_FORTE
+        ).place(relx=0.5, rely=0.5, anchor="center")
 
         ctk.CTkLabel(
-            self.tabela_frame,
-            text="Últimos Atendimentos",
-            font=config.FONTE_H2,
-            text_color=config.COR_TEXTO_DARK,
-        ).pack(pady=20, padx=20, anchor="w")
+            footer, text=self._usuario.get("nome", "Usuário"),
+            font=F.pequena_bold(),
+            text_color=DOURADO_CLARO
+        ).grid(row=0, column=1, sticky="w", padx=(10, 0))
 
-        self.grid_frame = ctk.CTkFrame(self.tabela_frame, fg_color="transparent")
-        self.grid_frame.pack(fill="x", padx=20, pady=(0, 20))
-        self.grid_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+        ctk.CTkLabel(
+            footer, text=self._usuario.get("nivel", ""),
+            font=F.logo_sub(),
+            text_color=AZUL_CLARO
+        ).grid(row=1, column=1, sticky="w", padx=(10, 0))
 
-        # Renderiza os dados reais vindos do JSON
-        for row_idx, atendimento in enumerate(lista_recente):
-            # Formatando os dados para a linha: [Nome, Data, Tipo, Status]
-            dados_linha = [
-                atendimento.get("paciente_nome", "N/A"),
-                atendimento.get("data", "--/--/----"),
-                atendimento.get("tipo", "Geral"),
-                atendimento.get("status", "Pendente"),
-            ]
-            self._criar_atendimento_row(dados_linha, row_idx + 1)
-
-    def _criar_atendimento_row(self, data, row_idx):
-        for col_idx, value in enumerate(data):
-            if col_idx == 3:
-                self._criar_status_pill(value, row_idx)
+    # ── Destaque nav ────────────────────────────────────────
+    def _destacar_nav(self, chave):
+        for k, btn in self._botoes_nav.items():
+            if k == chave:
+                btn.configure(
+                    fg_color=AZUL_PROFUNDO,
+                    text_color=DOURADO_CLARO,
+                    border_width=0
+                )
             else:
-                ctk.CTkLabel(
-                    self.grid_frame,
-                    text=value,
-                    font=config.FONTE_CORPO,
-                    text_color=config.COR_TEXTO_DARK,
-                    anchor="w",
-                ).grid(row=row_idx, column=col_idx, sticky="ew", padx=10, pady=5)
+                btn.configure(
+                    fg_color="transparent",
+                    text_color="#A8C0DC",
+                    border_width=0
+                )
 
-    def _criar_status_pill(self, status, row_idx):
-        bg_cor = (
-            config.COR_STATUS_REALIZADO
-            if status == "Realizado"
-            else config.COR_STATUS_ACOMPANHAMENTO
-        )
-        txt_cor = (
-            config.COR_STATUS_REALIZADO_TEXT
-            if status == "Realizado"
-            else config.COR_STATUS_ACOMPANHAMENTO_TEXT
-        )
+    # ── Navegação entre telas ───────────────────────────────
+    def mostrar_frame(self, chave, paciente_id=None):
+        if self._frame_atual:
+            self._frame_atual.destroy()
 
-        pill = ctk.CTkFrame(
-            self.grid_frame, fg_color=bg_cor, corner_radius=20, height=30
-        )
-        pill.grid(row=row_idx, column=3, sticky="w", padx=10, pady=5)
-        pill.grid_propagate(False)
-        pill.pack_propagate(False)
+        self._destacar_nav(chave)
 
-        ctk.CTkLabel(
-            pill, text=status, font=config.FONTE_PILL, text_color=txt_cor
-        ).pack(pady=0, padx=20, fill="both")
+        from src.ui.dashboard_view         import DashboardView
+        from src.ui.pacientes_view         import PacientesView
+        from src.ui.novo_paciente_view     import NovoPacienteView
+        from src.ui.novo_atendimento_view  import NovoAtendimentoView
+        from src.ui.atendimentos_view      import AtendimentosView
+        from src.ui.historico_view         import HistoricoView
+        from src.ui.editar_paciente_view   import EditarPacienteView
 
-    def mostrar_detalhes_paciente(self, paciente):
-        self._limpar_conteudo_principal()
-        self.tela_detalhes = DetalhesPacienteView(
-            self.main_frame, self.controller, paciente
-        )
-        self.tela_detalhes.pack(fill="both", expand=True)
+        # Telas que recebem paciente_id
+        if chave == "historico" and paciente_id:
+            self._frame_atual = HistoricoView(
+                self.area_conteudo, self, paciente_id=paciente_id)
+        elif chave == "novo_atendimento" and paciente_id:
+            self._frame_atual = NovoAtendimentoView(
+                self.area_conteudo, self, paciente_id=paciente_id)
+        elif chave == "editar_paciente" and paciente_id:
+            self._frame_atual = EditarPacienteView(
+                self.area_conteudo, self, paciente_id=paciente_id)
+        else:
+            frames = {
+                "dashboard":        DashboardView,
+                "pacientes":        PacientesView,
+                "atendimentos":     AtendimentosView,
+                "novo_paciente":    NovoPacienteView,
+                "novo_atendimento": NovoAtendimentoView,
+                "historico":        HistoricoView,
+                "editar_paciente":  EditarPacienteView,
+            }
+            cls = frames.get(chave)
+            if cls:
+                self._frame_atual = cls(self.area_conteudo, self)
+
+        if self._frame_atual:
+            self._frame_atual.grid(row=0, column=0, sticky="nsew")

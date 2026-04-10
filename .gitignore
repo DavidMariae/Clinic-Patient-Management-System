@@ -1,10 +1,21 @@
-# Arquivos compilados Python
+﻿# Python
 __pycache__/
+*.py[cod]
+*.pyo
+*.pyd
 *.pyc
 
-# Ambiente virtual
+# Virtual environment
 venv/
+.env
+.env.*
 
-# Arquivos temporários
-*.log
-*.tmp
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Distribution / build
+build/
+dist/
+*.egg-info/
